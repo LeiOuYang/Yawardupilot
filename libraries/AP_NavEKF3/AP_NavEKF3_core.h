@@ -668,6 +668,9 @@ private:
     // force alignment of the yaw angle using GPS velocity data
     void realignYawGPS();
 
+    // align the yaw angle using the data from the yaw sensor buffer
+    void alignYawAngle();
+
     // initialise the earth magnetic field states using declination and current attitude and magnetometer meaasurements
     // and return attitude quaternion
     Quaternion calcQuatAndFieldStates(float roll, float pitch);
