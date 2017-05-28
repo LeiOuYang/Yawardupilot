@@ -132,6 +132,8 @@ const AP_Param::GroupInfo SITL::var_info2[] = {
     // @Path: ./SIM_Gripper_EPM.cpp
     AP_SUBGROUPINFO(gripper_epm_sim, "GRPE_", 24, SITL, Gripper_EPM),
 
+    AP_GROUPINFO("GPS_HDG",     25, SITL,  gps_hdg_enabled, 0),
+    
     AP_GROUPEND
 };
     
