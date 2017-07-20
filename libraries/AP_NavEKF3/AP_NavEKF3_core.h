@@ -668,7 +668,7 @@ private:
     // force alignment of the yaw angle using GPS velocity data
     void realignYawGPS();
 
-    // align the yaw angle using the data from the yaw sensor buffer
+    // align the yaw angle for the quaternion states using the external yaw sensor
     void alignYawAngle();
 
     // initialise the earth magnetic field states using declination and current attitude and magnetometer meaasurements
@@ -772,7 +772,7 @@ private:
     void alignMagStateDeclination();
 
     // Fuse compass measurements using a simple declination observation (doesn't require magnetic field states)
-    void fuseEulerYaw();
+    void fuseEulerYaw(bool usePredictedYaw, bool useExternalYawSensor);
 
     // Fuse declination angle to keep earth field declination from changing when we don't have earth relative observations.
     // Input is 1-sigma uncertainty in published declination
