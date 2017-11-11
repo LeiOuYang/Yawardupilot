@@ -573,6 +573,12 @@ void NavEKF3_core::readGpsData()
 
             frontend->logging.log_gps = true;
 
+            // if the GPS has yaw data then input that as well
+            float yaw_deg, yaw_accuracy_deg;
+            if (_ahrs->get_gps().gps_yaw_deg(yaw_deg, yaw_accuracy_deg)) {
+                writeEulerYawAngle(radians(yaw_deg), radians(yaw_accuracy_deg), gpsDataNew.time_ms, 2);
+            }
+
         } else {
             // report GPS fix status
             gpsCheckStatus.bad_fix = true;
