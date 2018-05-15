@@ -10,9 +10,7 @@
 #include <AP_GPS/AP_GPS.h>
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Mission/AP_Mission.h>
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
-#include <drivers/drv_hrt.h>
-#endif
+#include <AP_Common/Semaphore.h>
 
 #define AP_CAMERA_TRIGGER_TYPE_SERVO                0
 #define AP_CAMERA_TRIGGER_TYPE_RELAY                1
@@ -93,10 +91,6 @@ private:
     void            relay_pic();        // basic relay activation
     void            feedback_pin_timer();
     void            setup_feedback_callback(void);
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
-    static void     capture_callback(void *context, uint32_t chan_index,
-                                     hrt_abstime edge_time, uint32_t edge_state, uint32_t overflow);
-#endif
     
     AP_Float        _trigg_dist;        // distance between trigger points (meters)
     AP_Int16        _min_interval;      // Minimum time between shots required by camera
@@ -114,6 +108,8 @@ private:
     static volatile bool   _camera_triggered;
     bool            _timer_installed:1;
     uint8_t         _last_pin_state;
+    HAL_Semaphore   _feedback_sem;
+    uint64_t        _feedback_timestamp_us;
 
     void log_picture();
 
@@ -127,9 +123,6 @@ private:
     // de-activate the trigger after some delay, but without using a delay() function
     // should be called at 50hz from main program
     void trigger_pic_cleanup();
-
-    // check if feedback pin has fired
-    bool check_feedback_pin(void);
 
     // return true if we are using a feedback pin
     bool using_feedback_pin(void) const { return _feedback_pin > 0; }
