@@ -138,7 +138,7 @@ private:
     int32_t _new_altitude;                                      ///< altitude parsed from a term
     int32_t _new_speed;                                                 ///< speed parsed from a term
     int32_t _new_course;                                        ///< course parsed from a term
-    float   _new_gps_yaw;                                        ///< course parsed from a term
+    float   _new_gps_yaw;                                        ///< yaw parsed from a term
     uint16_t _new_hdop;                                                 ///< HDOP parsed from a term
     uint8_t _new_satellite_count;                       ///< satellite count parsed from a term
     uint8_t _new_quality_indicator;                                     ///< GPS quality indicator parsed from a term
