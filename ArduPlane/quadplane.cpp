@@ -1394,7 +1394,10 @@ void QuadPlane::update(void)
         /*
           make sure we don't have any residual control from previous flight stages
          */
-        attitude_control->relax_attitude_controllers();
+        if (!is_tailsitter()) {
+            // tailsitters don't relax, so users can test disarmed in Q modes
+            attitude_control->relax_attitude_controllers();
+        }
         attitude_control->reset_rate_controller_I_terms();
         pos_control->relax_alt_hold_controllers(0);
     }
