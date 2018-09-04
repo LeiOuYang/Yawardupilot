@@ -10,7 +10,6 @@
 #include <AP_GPS/AP_GPS.h>
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Mission/AP_Mission.h>
-#include <AP_Common/Semaphore.h>
 
 #define AP_CAMERA_TRIGGER_TYPE_SERVO                0
 #define AP_CAMERA_TRIGGER_TYPE_RELAY                1
@@ -90,6 +89,7 @@ private:
     void            servo_pic();        // Servo operated camera
     void            relay_pic();        // basic relay activation
     void            feedback_pin_timer();
+    void            feedback_pin_isr(uint8_t, bool, uint32_t);
     void            setup_feedback_callback(void);
     
     AP_Float        _trigg_dist;        // distance between trigger points (meters)
@@ -98,18 +98,18 @@ private:
     uint32_t        _last_photo_time;   // last time a photo was taken
     struct Location _last_location;
     uint16_t        _image_index;       // number of pictures taken since boot
-    uint16_t        _feedback_events;   // number of feedback events since boot
 
     // pin number for accurate camera feedback messages
     AP_Int8         _feedback_pin;
     AP_Int8         _feedback_polarity;
 
     // this is set to 1 when camera trigger pin has fired
-    static volatile bool   _camera_triggered;
+    uint32_t        _camera_trigger_count;
+    uint32_t        _camera_trigger_logged;
+    uint32_t        _feedback_timestamp_us;
     bool            _timer_installed:1;
+    bool            _isr_installed:1;
     uint8_t         _last_pin_state;
-    HAL_Semaphore   _feedback_sem;
-    uint64_t        _feedback_timestamp_us;
 
     void log_picture();
 

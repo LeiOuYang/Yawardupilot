@@ -97,11 +97,6 @@ const AP_Param::GroupInfo AP_Camera::var_info[] = {
 
 extern const AP_HAL::HAL& hal;
 
-/*
-  static trigger var for PX4 callback
- */
-volatile bool   AP_Camera::_camera_triggered;
-
 /// Servo operated camera
 void
 AP_Camera::servo_pic()
@@ -251,7 +246,7 @@ void AP_Camera::send_feedback(mavlink_channel_t chan)
         current_loc.lat, current_loc.lng,
         altitude*1e-2f, altitude_rel*1e-2f,
         ahrs.roll_sensor*1e-2f, ahrs.pitch_sensor*1e-2f, ahrs.yaw_sensor*1e-2f,
-        0.0f, CAMERA_FEEDBACK_PHOTO, _feedback_events);
+        0.0f, CAMERA_FEEDBACK_PHOTO, _camera_trigger_logged);
 }
 
 
@@ -300,7 +295,17 @@ void AP_Camera::update()
 }
 
 /*
-  check if feedback pin is high
+  interrupt handler for interrupt based feedback trigger
+ */
+void AP_Camera::feedback_pin_isr(uint8_t pin, bool high, uint32_t timestamp_us)
+{
+    _feedback_timestamp_us = timestamp_us;
+    _camera_trigger_count++;
+}
+
+/*
+  check if feedback pin is high for timer based feedback trigger, when
+  attach_interrupt fails
  */
 void AP_Camera::feedback_pin_timer(void)
 {
@@ -308,9 +313,8 @@ void AP_Camera::feedback_pin_timer(void)
     uint8_t trigger_polarity = _feedback_polarity==0?0:1;
     if (pin_state == trigger_polarity &&
         _last_pin_state != trigger_polarity) {
-        WITH_SEMAPHORE(_feedback_sem);
-        _camera_triggered = true;    
-        _feedback_timestamp_us = AP_HAL::micros64();
+        _feedback_timestamp_us = AP_HAL::micros();
+        _camera_trigger_count++;
     }
     _last_pin_state = pin_state;
 }
@@ -320,18 +324,27 @@ void AP_Camera::feedback_pin_timer(void)
  */
 void AP_Camera::setup_feedback_callback(void)
 {
-    if (_feedback_pin <= 0 || _timer_installed) {
+    if (_feedback_pin <= 0 || _timer_installed || _isr_installed) {
         // invalid or already installed
         return;
     }
 
-    hal.gpio->pinMode(_feedback_pin, HAL_GPIO_INPUT); // ensure we are in input mode
-    hal.gpio->write(_feedback_pin, 1);                // enable pullup
+    // ensure we are in input mode
+    hal.gpio->pinMode(_feedback_pin, HAL_GPIO_INPUT);
 
-    // install a 1kHz timer to check feedback pin
-    hal.scheduler->register_timer_process(FUNCTOR_BIND_MEMBER(&AP_Camera::feedback_pin_timer, void));
+    // enable pullup/pulldown
+    uint8_t trigger_polarity = _feedback_polarity==0?0:1;
+    hal.gpio->write(_feedback_pin, !trigger_polarity);
 
-    _timer_installed = true;
+    if (hal.gpio->attach_interrupt(_feedback_pin, FUNCTOR_BIND_MEMBER(&AP_Camera::feedback_pin_isr, void, uint8_t, bool, uint32_t),
+                                   trigger_polarity?AP_HAL::GPIO::INTERRUPT_RISING:AP_HAL::GPIO::INTERRUPT_FALLING)) {
+        _isr_installed = true;
+    } else {
+        // install a 1kHz timer to check feedback pin
+        hal.scheduler->register_timer_process(FUNCTOR_BIND_MEMBER(&AP_Camera::feedback_pin_timer, void));
+
+        _timer_installed = true;
+    }
 }
 
 // log_picture - log picture taken and send feedback to GCS
@@ -379,26 +392,17 @@ void AP_Camera::update_trigger()
 {
     trigger_pic_cleanup();
     
-    bool triggered;
-    uint64_t timestamp;
-    
-    {
-        WITH_SEMAPHORE(_feedback_sem);
-        triggered = _camera_triggered;
-        timestamp = _feedback_timestamp_us;
-        _camera_triggered = false;
-    }
-    
-    if (triggered) {
-        _feedback_events++;
+    if (_camera_trigger_logged != _camera_trigger_count) {
+        uint32_t timestamp32 = _feedback_timestamp_us;
+        _camera_trigger_logged++;
+
         gcs().send_message(MSG_CAMERA_FEEDBACK);
         DataFlash_Class *df = DataFlash_Class::instance();
         if (df != nullptr) {
             if (df->should_log(log_camera_bit)) {
-                if (timestamp == 0) {
-                    timestamp = AP_HAL::micros64();
-                }
-                df->Log_Write_Camera(ahrs, current_loc, timestamp);
+                uint32_t tdiff = AP_HAL::micros() - timestamp32;
+                uint64_t timestamp = AP_HAL::micros64();
+                df->Log_Write_Camera(ahrs, current_loc, timestamp - tdiff);
             }
         }
     }
