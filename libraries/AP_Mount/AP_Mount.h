@@ -38,6 +38,7 @@ class AP_Mount_SoloGimbal;
 class AP_Mount_Alexmos;
 class AP_Mount_SToRM32;
 class AP_Mount_SToRM32_serial;
+class AP_Mount_SCA150I_serial;    /* add by awesome */
 
 /*
   This is a workaround to allow the MAVLink backend access to the
@@ -53,6 +54,7 @@ class AP_Mount
     friend class AP_Mount_Alexmos;
     friend class AP_Mount_SToRM32;
     friend class AP_Mount_SToRM32_serial;
+    friend class AP_Mount_SCA150I_serial;   /* add by awesome */
 
 public:
     AP_Mount(const AP_AHRS_TYPE &ahrs, const struct Location &current_loc);
@@ -69,7 +71,8 @@ public:
         Mount_Type_SoloGimbal = 2,      /// Solo's gimbal
         Mount_Type_Alexmos = 3,         /// Alexmos mount
         Mount_Type_SToRM32 = 4,         /// SToRM32 mount using MAVLink protocol
-        Mount_Type_SToRM32_serial = 5   /// SToRM32 mount using custom serial protocol
+        Mount_Type_SToRM32_serial = 5,   /// SToRM32 mount using custom serial protocol
+        Mount_Type_SCA150_serial = 6     ///ÐÂ¼Óµõ²Õsca150I
     };
 
     // init - detect and initialise all mounts
@@ -131,6 +134,9 @@ public:
 
     // send a GIMBAL_REPORT message to GCS
     void send_gimbal_report(mavlink_channel_t chan);
+
+    void handle_data16(mavlink_channel_t chan, mavlink_message_t *msg); /* add by awesome */
+    void send_data16(mavlink_channel_t chan);   /* add by awesome */
 
     // status_msg - called to allow mounts to send their status to GCS using the MOUNT_STATUS message
     void status_msg(mavlink_channel_t chan);

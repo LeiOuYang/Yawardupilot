@@ -329,6 +329,13 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 #endif // MOUNT == ENABLED
         break;
 
+    case MSG_DATA16_MOUNT: /* add by awesome */
+#if MOUNT == ENABLED
+        CHECK_PAYLOAD_SIZE(DATA16);
+        copter.camera_mount.send_data16(chan);
+#endif // MOUNT == ENABLED
+        break;
+
     case MSG_OPTICAL_FLOW:
 #if OPTFLOW == ENABLED
         CHECK_PAYLOAD_SIZE(OPTICAL_FLOW);
@@ -508,6 +515,7 @@ static const ap_message STREAM_EXTRA3_msgs[] = {
     MSG_BATTERY2,
     MSG_BATTERY_STATUS,
     MSG_MOUNT_STATUS,
+    MSG_DATA16_MOUNT, /* add by awesome */
     MSG_OPTICAL_FLOW,
     MSG_GIMBAL_REPORT,
     MSG_MAG_CAL_REPORT,
@@ -1020,6 +1028,13 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 {
     switch (msg->msgid) {
 
+    /* data16接收吊舱数据  add by awesome */
+	case MAVLINK_MSG_ID_DATA16:
+	{
+		handle_data16(copter.camera_mount, msg);
+		break;
+	}
+
     case MAVLINK_MSG_ID_HEARTBEAT:      // MAV ID: 0
     {
         // We keep track of the last time we received a heartbeat from our GCS for failsafe purposes
@@ -1484,7 +1499,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
 /*
  *  a delay() callback that processes MAVLink packets. We set this as the
- *  callback in long running library initialisation routines to allow
+ *  callback in long running library  routines to allow
  *  MAVLink to process packets while waiting for the initialisation to
  *  complete
  */
@@ -1510,7 +1525,7 @@ void Copter::mavlink_delay_cb()
     }
     if (tnow - last_5s > 5000) {
         last_5s = tnow;
-        gcs().send_text(MAV_SEVERITY_INFO, "Initialising APM");
+        gcs().send_text(MAV_SEVERITY_INFO, /*"Initialising APM"*/ "Initialising Joyton-Copter");  /* modify by awesome*/
     }
 
     DataFlash.EnableWrites(true);

@@ -83,6 +83,7 @@ enum ap_message : uint8_t {
     MSG_LANDING,
     MSG_ESC_TELEMETRY,
     MSG_NAMED_FLOAT,
+    MSG_DATA16_MOUNT,  /* add by awesome */
     MSG_LAST // MSG_LAST must be the last entry in this enum
 };
 
@@ -305,6 +306,7 @@ protected:
     void handle_rally_fetch_point(mavlink_message_t *msg);
     void handle_rally_point(mavlink_message_t *msg);
     void handle_gimbal_report(AP_Mount &mount, mavlink_message_t *msg) const;
+    void handle_data16(AP_Mount &mount, mavlink_message_t *msg) const; /* add by awesome */
     void handle_radio_status(mavlink_message_t *msg, DataFlash_Class &dataflash, bool log_radio);
     void handle_serial_control(const mavlink_message_t *msg);
     void handle_vision_position_delta(mavlink_message_t *msg);

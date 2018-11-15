@@ -157,20 +157,24 @@ void DFMessageWriter_WriteSysInfo::process() {
         FALLTHROUGH;
 
     case ws_blockwriter_stage_git_versions:
-        if (fwver.middleware_name && fwver.os_name) {
-            if (! _dataflash_backend->Log_Write_MessageF("%s: %s %s: %s",
-                                                        fwver.middleware_name,
-                                                        fwver.middleware_hash_str,
-                                                        fwver.os_name,
-                                                        fwver.os_hash_str)) {
-                return; // call me again
-            }
-        } else if (fwver.os_name) {
-            if (! _dataflash_backend->Log_Write_MessageF("%s: %s",
-                                                        fwver.os_name,
-                                                        fwver.os_hash_str)) {
-                return; // call me again
-            }
+            if (fwver.middleware_name && fwver.os_name) {
+            if (fwver.middleware_name && fwver.os_name) { /* modify by awesome */
+                if (! _dataflash_backend->Log_Write_MessageF("%s: %s %s: %s",
+                                                            fwver.middleware_name,
+                											"JOYTON",/*fwver.middleware_name*/
+                                                            fwver.middleware_hash_str,
+                                                            fwver.os_name,
+                                                            "RTOS"/*fwver.os_name*/,
+                                                            fwver.os_hash_str)) {
+                    return; // call me again
+                }
+            } else if (fwver.os_name) {
+                if (! _dataflash_backend->Log_Write_MessageF("%s: %s",
+                                                            fwver.os_name,
+                		"RTOS"/*fwver.os_name*/,
+                                                            fwver.os_hash_str)) {
+                    return; // call me again
+                }
         }
         stage = ws_blockwriter_stage_system_id;
         FALLTHROUGH;

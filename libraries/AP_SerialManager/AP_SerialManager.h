@@ -73,6 +73,11 @@
 #define AP_SERIALMANAGER_SBUS1_BUFSIZE_RX     16
 #define AP_SERIALMANAGER_SBUS1_BUFSIZE_TX     32
 
+/* add by awesome */
+#define AP_SERIALMANAGER_SCA150I_BAUD               115200
+#define AP_SERIALMANAGER_SCA150I_BUFSIZE_RX         256
+#define AP_SERIALMANAGER_SCA150I_BUFSIZE_TX         128
+
 class AP_SerialManager {
 public:
     AP_SerialManager();

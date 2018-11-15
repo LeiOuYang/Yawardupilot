@@ -8,6 +8,11 @@
 #include "AP_Mount_SToRM32.h"
 #include "AP_Mount_SToRM32_serial.h"
 
+/*-------- add by awesome --------*/
+#include "AP_Mount_SCA150I_serial.h"
+#include <GCS_MAVLink/GCS.h>
+/*-------- end add --------*/
+
 const AP_Param::GroupInfo AP_Mount::var_info[] = {
     // @Param: _DEFLT_MODE
     // @DisplayName: Mount default operating mode
@@ -455,6 +460,10 @@ void AP_Mount::init(const AP_SerialManager& serial_manager)
         } else if (mount_type == Mount_Type_SToRM32_serial) {
             _backends[instance] = new AP_Mount_SToRM32_serial(*this, state[instance], instance);
             _num_instances++;
+        }else if (mount_type == Mount_Type_SCA150_serial) {  /* add by awesome */
+            _backends[instance] = new AP_Mount_SCA150I_serial(*this, state[instance], instance);
+            _num_instances++;
+            gcs().send_text(MAV_SEVERITY_INFO, "detect the SCA150I gimbal");
         }
 
         // init new instance
@@ -615,6 +624,28 @@ void AP_Mount::handle_gimbal_report(mavlink_channel_t chan, mavlink_message_t *m
         }
     }
 }
+
+/* add by awesome */
+void AP_Mount::handle_data16(mavlink_channel_t chan, mavlink_message_t *msg)
+{
+    for (uint8_t instance=0; instance<AP_MOUNT_MAX_INSTANCES; instance++) {
+        if (_backends[instance] != nullptr) {
+            _backends[instance]->handle_data16(chan, msg);
+        }
+    }
+}
+
+/* add by awesome */
+void AP_Mount::send_data16(mavlink_channel_t chan)
+{
+    for (uint8_t instance=0; instance<AP_MOUNT_MAX_INSTANCES; instance++) {
+        if (_backends[instance] != nullptr) {
+            _backends[instance]->send_data16(chan);
+        }
+    }
+}
+/* end the add */
+
 
 // handle PARAM_VALUE
 void AP_Mount::handle_param_value(mavlink_message_t *msg)

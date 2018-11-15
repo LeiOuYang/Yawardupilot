@@ -71,6 +71,11 @@ public:
     // handle a GIMBAL_REPORT message
     virtual void handle_gimbal_report(mavlink_channel_t chan, mavlink_message_t *msg) {}
 
+    /* 与地面站交互，接收数据和发送数据接口 add by awesome */
+    virtual void handle_data16(mavlink_channel_t chan, mavlink_message_t *msg) {}
+
+    virtual void send_data16(mavlink_channel_t chan) {} /* add by awesome */
+
     // handle a PARAM_VALUE message
     virtual void handle_param_value(mavlink_message_t *msg) {}
 
