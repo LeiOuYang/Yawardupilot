@@ -102,7 +102,7 @@ void AP_Mount_SCA150I_serial::update()
 
     if ((AP_HAL::millis() - _last_send) > AP_Mount_SCA150I_serial_RESEND_MS*80) {    /* 五秒内吊舱没有输出传送至飞控  则认为吊舱与飞控连接失效  */
     	/* 提示吊舱连接错误 */
-    	GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "SCA150I gimbal comm error");
+    	gcs().send_text(MAV_SEVERITY_INFO, "SCA150I gimbal comm error");
     	_last_send = AP_HAL::millis();
     }
 }
@@ -209,7 +209,7 @@ void AP_Mount_SCA150I_serial::read_incoming() {
 								/* z航向角度， y俯仰角度  */
 								_current_angle.yaw_angle =  0.01*(static_cast<int16_t>(_buffer.pack_data[5] + (_buffer.pack_data[4]<<8)));
 								_current_angle.pitch_angle =  0.01*(static_cast<int16_t>(_buffer.pack_data[7] + (_buffer.pack_data[6]<<8)));
-								//GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "yaw=%5.1f, pitch=%5.1f",_current_angle.yaw_angle, _current_angle.pitch_angle);
+								//gcs().send_text(MAV_SEVERITY_INFO, "yaw=%5.1f, pitch=%5.1f",_current_angle.yaw_angle, _current_angle.pitch_angle);
 								_parse_status = PARSE_STATUS_NONE;
 								_last_send = AP_HAL::millis();
 							}else
@@ -244,7 +244,7 @@ void AP_Mount_SCA150I_serial::handle_data16(mavlink_channel_t chan, mavlink_mess
 
 	if(0x01==data16.type)  /* 0x01为和协吊舱  */
 	{
-		//GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "SCA150I data16");
+		//gcs().send_text(MAV_SEVERITY_INFO, "SCA150I data16");
 		uint8_t i = 0;
 		if(can_send(true) && _data16_enbale)
 		{
