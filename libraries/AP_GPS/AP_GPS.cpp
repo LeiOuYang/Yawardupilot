@@ -509,7 +509,7 @@ void AP_GPS::detect_instance(uint8_t instance)
 
         if (_auto_config == GPS_AUTO_CONFIG_ENABLE && new_gps == nullptr) {
             if (_type[instance] == GPS_TYPE_HEMI) {
-                send_blob_start(instance, AP_GPS_NMEA_HEMISPHERE_INIT_STRING, strlen(AP_GPS_NMEA_HEMISPHERE_INIT_STRING));
+                send_blob_start(instance, ZHD_PISHON_LOG_CONFIG, strlen(ZHD_PISHON_LOG_CONFIG));
             } else {
                 send_blob_start(instance, _initialisation_blob, sizeof(_initialisation_blob));
             }

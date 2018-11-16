@@ -161,6 +161,16 @@ private:
     static const char _initialisation_blob[];
 };
 
+#define ZHD_PISHON_LOG_CONFIG \
+	"com com2 115200\r\n"\
+	"interfacemode com2 rtcmv3 novatel\r\n"\
+	"log com3 gpgga ontime 0.2\r\n"\
+	"log com3 gprmc ontime 0.2\r\n"\
+	"log com3 gpvtg ontime 0.2\r\n"\
+	"log com3 gphdt ontime 0.2\r\n"\
+	"saveconfig\r\n"
+
+
 #define AP_GPS_NMEA_HEMISPHERE_INIT_STRING \
         "$JATT,NMEAHE,0\r\n" /* Prefix of GP on the HDT message */      \
         "$JASC,GPGGA,5\r\n" /* GGA at 5Hz */                            \
