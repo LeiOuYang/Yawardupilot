@@ -687,14 +687,18 @@ void AP_GPS::update_instance(uint8_t instance)
     if (state[instance].status >= GPS_OK_FIX_3D) {
         const uint64_t now = time_epoch_usec(instance);
         AP::rtc().set_utc_usec(now, AP_RTC::SOURCE_GPS);
+
     }
 }
 
 /*
-  update all GPS instances
+  update all GPS instances 50hz
  */
 void AP_GPS::update(void)
 {
+	static uint16_t yawTimeCount = 0;   /* 50Îª1Ãë */
+	++yawTimeCount;
+
     for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
         update_instance(i);
     }
@@ -703,6 +707,12 @@ void AP_GPS::update(void)
     for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
         if (state[i].status != NO_GPS) {
             num_instances = i+1;
+        }
+
+        if( state[i].have_gps_yaw && yawTimeCount>250 )
+        {
+        	gcs().send_text(MAV_SEVERITY_INFO, "GPS Yaw: %.2f", static_cast<double>(state[i].gps_yaw));
+        	yawTimeCount = 0;
         }
     }
 
