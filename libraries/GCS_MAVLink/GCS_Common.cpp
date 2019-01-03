@@ -2951,6 +2951,7 @@ void GCS_MAVLINK::send_global_position_int()
         vel.y * 100,                     // Y speed cm/s (+ve East)
         vel.z * 100,                     // Z speed cm/s (+ve Down)
         ahrs.yaw_sensor);                // compass heading in 1/100 degree
+
 }
 
 bool GCS_MAVLINK::try_send_message(const enum ap_message id)

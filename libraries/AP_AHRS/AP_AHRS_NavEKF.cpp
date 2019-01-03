@@ -132,7 +132,7 @@ void AP_AHRS_NavEKF::update_DCM(bool skip_ins_update)
     roll = _dcm_attitude.x;
     pitch = _dcm_attitude.y;
     yaw = _dcm_attitude.z;
-    update_cd_values();
+    update_cd_values();    /* 转换成角度，并赋值到xx_sensor变量 */
 
     AP_AHRS_DCM::update(skip_ins_update);
 

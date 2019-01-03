@@ -709,6 +709,7 @@ void AP_GPS::update(void)
             num_instances = i+1;
         }
 
+        /* add by awesome */
         if( state[i].have_gps_yaw && yawTimeCount>250 )
         {
         	gcs().send_text(MAV_SEVERITY_INFO, "GPS Yaw: %.2f", static_cast<double>(state[i].gps_yaw));
