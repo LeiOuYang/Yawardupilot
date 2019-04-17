@@ -273,6 +273,13 @@ void NavEKF3_core::SelectMagFusion()
                 fuseEulerYaw(true, true);
             }
         }
+        if ((onGround || !assume_zero_sideslip()) && (imuSampleTime_ms - lastSynthYawTime_ms > 15000)) {
+            fuseEulerYaw(true, false);
+            magTestRatio.zero();
+            yawTestRatio = 0.0f;
+            lastSynthYawTime_ms = imuSampleTime_ms;
+            //gcs().send_text(MAV_SEVERITY_INFO, "EKF3 on Ground");
+        }
         return;
     }
 

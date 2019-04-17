@@ -270,7 +270,7 @@ public:
         // code a fixed value of 10 degrees, which seems like a
         // reasonable guess. Once a backend can provide a proper
         // estimate we can implement it
-        accuracy_deg = 10;
+        accuracy_deg = 2;
         return true;
     }
     bool gps_yaw_deg(float &yaw_deg, float &accuracy_deg) const {
